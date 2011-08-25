@@ -145,21 +145,21 @@ function feedgeomashup_options_save( $params , $page) {
 	}
 	$feedgeomashup_range['latmin'] = min( "90" , max( $feedgeomashup_range['latmin'] , "-90" ));
 	$feedgeomashup_range['latmax'] = min( "90" , max( $feedgeomashup_range['latmax'] , "-90" ));
-	$feedgeomashup_range['longmin'] = min( "360" , max( $feedgeomashup_range['longmin'] , "0" ));
-	$feedgeomashup_range['longmax'] = min( "360" , max( $feedgeomashup_range['longmax'] , "0" ));
+	$feedgeomashup_range['longmin'] = min( "360" , max( $feedgeomashup_range['longmin'] , "-360" ));
+	$feedgeomashup_range['longmax'] = min( "360" , max( $feedgeomashup_range['longmax'] , "-360" ));
 
 	if (!$page->for_feed_settings()) :
 		update_option( 'feedwordpress_feedgeomashup_filter_mapped_posts', $feedgeomashup_filter_mapped_posts );
 		update_option( 'feedwordpress_feedgeomashup_posts' , $_REQUEST['feedgeomashup_posts']);
 		update_option( 'feedwordpress_feedgeomashup_range' , $feedgeomashup_range );
 	else :
-		$page->link->settings['feedgeomashup posts'] = $_REQUEST['feedgeomashup_posts'];
-		$page->link->settings['feedgeomashup_range']['filter_range'] = "yipe".$_REQUEST['filter_range'];
+//		$page->link->settings['feedgeomashup posts'] = $_REQUEST['feedgeomashup_posts'];
+//		$page->link->settings['feedgeomashup_range']['filter_range'] = "yipe".$_REQUEST['filter_range'];
 	endif;
 }
 
 //handle unmapped posts
-function feedwordpress_unmapped_posts( $posts , $link ) {
+function feedgeomashup_unmapped_posts( $posts , $link ) {
 
 	//get the site-wide preference for keeping all or only mapped posts
 	$sitewide_setting = get_option( 'feedwordpress_feedgeomashup_posts' );
@@ -200,7 +200,57 @@ function feedwordpress_unmapped_posts( $posts , $link ) {
 }
 
 //hook into syndicated_feed_items
-add_filter( 'syndicated_feed_items' , 'feedwordpress_unmapped_posts' , 100 , 2 );
+add_filter( 'syndicated_feed_items' , 'feedgeomashup_unmapped_posts' , 100 , 2 );
+
+//filter posts based on latlong ranges
+function feedgeomashup_filter_mapped_posts( $posts , $link ) {
+
+	//Is the option to filter mapped posts selected?
+	$whether_filter = get_option('feedwordpress_feedgeomashup_filter_mapped_posts');
+	if ( $whether_filter != "true" ) { return $posts; }
+
+	//Get the range
+	$range = get_option( 'feedwordpress_feedgeomashup_range' );
+	$range_latmin = $range['latmin'];
+	$range_latmax = $range['latmax'];
+	$range_longmin = $range['longmin'];
+	$range_longmax = $range['longmax'];
+	
+	//Go through the array of items
+	$link->magpie->originals = $posts;
+
+	if ( is_array( $posts )) :
+		foreach ( $posts as $key => $item ) :
+			$post = new SyndicatedPost( $item , $link );
+			$post_point = $post->item['http://www.georss.org/georss']['point'];
+			$post_point = explode( ' ' , $post_point );
+			$post_lat = $post_point[0];
+			$post_long = $post_point[1];
+			if (( $post_lat < $range_latmin ) || ( $post_lat > $range_latmax )) :
+				unset( $posts[$key] );
+				continue;
+			endif;
+			if ( $range_longmin < $range_longmax ) :
+				if (( $post_long < $range_longmin ) || ( $post_long > $range_longmax )) :
+					unset( $posts[$key] );
+					continue;
+				endif;
+				elseif (( $post_long > $range_longmin ) || ( $post_long < $range_longmax )) :
+					echo "why is it hitting this?";
+				die();
+					unset( $posts[$key] );
+					continue;
+				endelseif;
+			endif;
+		endforeach;
+	endif;
+
+	return $posts;
+
+}
+
+//hook into syndicated_feed_items
+add_filter( 'syndicated_feed_items' , 'feedgeomashup_filter_mapped_posts' , 99 , 2 );
 
 //pass geo-data from FeedWordPress to GeoMashup
 function feed_geomashup( $post_ID , $syndicated_item ) {
