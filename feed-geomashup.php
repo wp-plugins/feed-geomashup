@@ -71,11 +71,10 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 		),
 		//filter mapped posts by range?
 		'feedgeomashup_range' => array(
-			'filter_range' => "false" ,
-			'latmin'       => __('Minimum Latitude') ,
-			'latmax'       => __('Maximum Latitude') ,
-			'longmin'      => __('Minimum Longitude') ,
-			'longmax'      => __('Maximum Longitude') ,
+			'latmin'  => __('Minimum Latitude') ,
+			'latmax'  => __('Maximum Latitude') ,
+			'longmin' => __('Minimum Longitude') ,
+			'longmax' => __('Maximum Longitude') ,
 		),
 	);
 
@@ -83,11 +82,13 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 	//use the global values
 	if (!$page->for_feed_settings()) :
 		$feedgeomashup_posts = get_option( 'feedwordpress_feedgeomashup_posts' );
+		$feedgeomashup_filter_mapped_posts = get_option( 'feedwordpress_feedgeomashup_filter_mapped_posts' );
 		$feedgeomashup_range = get_option( 'feedwordpress_feedgeomashup_range' );
 	endif;
 ?>
 <table class="edit-form narrow">
 
+<!-- posts-to-syndicate row -->
 <tr><th scope="row">Posts to syndicate:</th>
 <td><?php
 $params = array(
@@ -102,28 +103,22 @@ $page->setting_radio_control(
 ?>
 </td></tr>
 
-<?php
-echo '<pre>Debug: ';
-print_r($setting);
-print_r($feedgeomashup_range);
-print_r($page);
-echo '</pre>';
-?> 
-
+<!-- filter-mapped-posts row -->
 <tr><th scope="row">Filter mapped posts?</th>
-<td><label><input type="checkbox" name="filter_range" value="true"<?php echo (($feedgeomashup_range['filter_range']=="true")? ' checked="checked"' : '' ); ?> />
-<?php
-//$params = array(
-//	'setting-default' => "false",
-//	'global-setting-default' => "false",
-//	'default-input-value' => "false",
-//);
-//$page->setting_checkbox_control(
-//	'feedgeomashup range' , 'feedgeomashup_range' ,
-//	$setting['feedgeomashup_range']['filter_range'], $params
-//);
-?>
+<td><label><input type="checkbox" name="feedgeomashup_filter_mapped_posts" value="true"<?php echo (($feedgeomashup_filter_mapped_posts=="true")? ' checked="checked"' : '' ); ?> /> You can filter mapped posts whether or not you are limiting the feed to "Mapped Posts Only."
 </label></td></tr>
+
+<!-- filter-by-range row -->
+<tr><th scope="row">Ranges</th>
+<td>
+<?php
+foreach( $setting['feedgeomashup_range'] as $limit => $label ) {
+	$format = '<input type="textbox" maxlength="20" name="feedgeomashup_%s" value="%f" /> %s <br />';
+	printf( $format , $limit , $feedgeomashup_range[$limit] , $label );
+}
+?>
+</td>
+</tr>
 
 </table>
 <?php
@@ -131,14 +126,31 @@ echo '</pre>';
 
 //function to save the settings
 function feedgeomashup_options_save( $params , $page) {
-	$feedgeomashup_range = Array(
-		'filter_range' => $_REQUEST['filter_range'],
-	);
+
+	//array of limits
+	$limits = array( 'latmin' , 'latmax' , 'longmin' , 'longmax' );
+
+	//fetch and sanitize the mapped post filter checkbox
+	$feedgeomashup_filter_mapped_posts = $_REQUEST['feedgeomashup_filter_mapped_posts'];
+	if ( $feedgeomashup_filter_mapped_posts != "true" ) {
+		$feedgeomashup_filter_mapped_posts = "false";
+	}
+
+	//fetch and sanitize the limits; assemble into array
+	foreach ($limits as $limit) {
+		$name = "feedgeomashup_$limit";
+		$value = $_REQUEST[$name];
+		$value = preg_replace( '/[^0-9+\.\-]/', '' , $value );
+		$feedgeomashup_range[$limit] = $value;
+	}
+
 	if (!$page->for_feed_settings()) :
+		update_option( 'feedwordpress_feedgeomashup_filter_mapped_posts', $feedgeomashup_filter_mapped_posts );
 		update_option( 'feedwordpress_feedgeomashup_posts' , $_REQUEST['feedgeomashup_posts']);
 		update_option( 'feedwordpress_feedgeomashup_range' , $feedgeomashup_range );
 	else :
 		$page->link->settings['feedgeomashup posts'] = $_REQUEST['feedgeomashup_posts'];
+		$page->link->settings['feedgeomashup_range']['filter_range'] = "yipe".$_REQUEST['filter_range'];
 	endif;
 }
 
