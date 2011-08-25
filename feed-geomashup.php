@@ -143,6 +143,10 @@ function feedgeomashup_options_save( $params , $page) {
 		$value = preg_replace( '/[^0-9+\.\-]/', '' , $value );
 		$feedgeomashup_range[$limit] = $value;
 	}
+	$feedgeomashup_range['latmin'] = min( "90" , max( $feedgeomashup_range['latmin'] , "-90" ));
+	$feedgeomashup_range['latmax'] = min( "90" , max( $feedgeomashup_range['latmax'] , "-90" ));
+	$feedgeomashup_range['longmin'] = min( "360" , max( $feedgeomashup_range['longmin'] , "0" ));
+	$feedgeomashup_range['longmax'] = min( "360" , max( $feedgeomashup_range['longmax'] , "0" ));
 
 	if (!$page->for_feed_settings()) :
 		update_option( 'feedwordpress_feedgeomashup_filter_mapped_posts', $feedgeomashup_filter_mapped_posts );
