@@ -84,6 +84,14 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 		$feedgeomashup_posts = get_option( 'feedwordpress_feedgeomashup_posts' );
 		$feedgeomashup_filter_mapped_posts = get_option( 'feedwordpress_feedgeomashup_filter_mapped_posts' );
 		$feedgeomashup_range = get_option( 'feedwordpress_feedgeomashup_range' );
+		if ( !$feedgeomashup_range ) :
+			$feedgeomashup_range = array(
+				'latmin' => '-90' ,
+				'latmax' => '90' ,
+				'longmin' => '-360' ,
+				'longmax' => '360'
+			);
+		endif;
 	endif;
 ?>
 <table class="edit-form narrow">
@@ -144,9 +152,9 @@ function feedgeomashup_options_save( $params , $page) {
 		$feedgeomashup_range[$limit] = $value;
 	}
 	$feedgeomashup_range['latmin'] = min( "90" , max( $feedgeomashup_range['latmin'] , "-90" ));
-	$feedgeomashup_range['latmax'] = min( "90" , max( $feedgeomashup_range['latmax'] , "-90" ));
+	$feedgeomashup_range['latmax'] = max( "-90" , min( $feedgeomashup_range['latmax'] , "90" ));
 	$feedgeomashup_range['longmin'] = min( "360" , max( $feedgeomashup_range['longmin'] , "-360" ));
-	$feedgeomashup_range['longmax'] = min( "360" , max( $feedgeomashup_range['longmax'] , "-360" ));
+	$feedgeomashup_range['longmax'] = max( "-360" , min( $feedgeomashup_range['longmax'] , "360" ));
 
 	if (!$page->for_feed_settings()) :
 		update_option( 'feedwordpress_feedgeomashup_filter_mapped_posts', $feedgeomashup_filter_mapped_posts );
