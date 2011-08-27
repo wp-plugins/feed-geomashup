@@ -151,9 +151,8 @@ function feedgeomashup_options_save( $params , $page) {
 		$value = preg_replace( '/[^0-9+\.\-]/', '' , $value );
 		$feedgeomashup_range[$limit] = $value;
 	}
-	echo "<pre>Debug: ";
-	print_r($feedgeomashup_range);
-	echo "</pre>";
+
+	//clean up the values and handle empty strings
 	$feedgeomashup_range['latmin'] = min( "90" , max( $feedgeomashup_range['latmin'] , "-90" ));
 	$feedgeomashup_range['latmax'] = $feedgeomashup_range['latmax'] == "" ? '90' : max( "-90" , min( $feedgeomashup_range['latmax'] , "90" ));
 	$feedgeomashup_range['longmin'] = min( "360" , max( $feedgeomashup_range['longmin'] , "-360" ));
