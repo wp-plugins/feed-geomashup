@@ -71,8 +71,8 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 		),
 		//whether to filter by range?
 		'feedgeomashup_filter_mapped_posts' => array(
-			'true' => __('Filter mapped posts by range') ,
-			''     => __('Do not filter mapped posts by range') ,
+			'nofilter' => __('Do not filter mapped posts by range') ,
+			'filter'   => __('Filter mapped posts by range') ,
 		),
 		//filter mapped posts by range?
 		'feedgeomashup_range' => array(
@@ -121,7 +121,7 @@ $page->setting_radio_control(
 <td><?php
 $params = array(
 	'setting-default' => 'default' , 
-	'global-setting-default' => '' ,
+	'global-setting-default' => 'nofilter' ,
 	'default-input-value' => 'default',
 );
 $page->setting_radio_control(
@@ -129,9 +129,8 @@ $page->setting_radio_control(
 	$setting['feedgeomashup_filter_mapped_posts'], $params
 );
 ?>
-<!--</td>
-<td><label><input type="checkbox" name="feedgeomashup_filter_mapped_posts" value="true"<?php echo (($feedgeomashup_filter_mapped_posts=="true")? ' checked="checked"' : '' ); ?> /> You can filter mapped posts whether or not you are limiting the feed to "Mapped Posts Only."
-</label></td>--></tr>
+</td>
+</tr>
 
 <!-- filter-by-range row -->
 <tr><th scope="row">Ranges</th>
@@ -157,8 +156,8 @@ function feedgeomashup_options_save( $params , $page) {
 
 	//fetch and sanitize the mapped post filter checkbox
 	$feedgeomashup_filter_mapped_posts = $_REQUEST['feedgeomashup_filter_mapped_posts'];
-	if ( $feedgeomashup_filter_mapped_posts != "true" ) {
-		$feedgeomashup_filter_mapped_posts = "false";
+	if ( $feedgeomashup_filter_mapped_posts != "filter" ) {
+		$feedgeomashup_filter_mapped_posts = "nofilter";
 	}
 
 	//fetch and sanitize the limits; assemble into array
@@ -232,9 +231,25 @@ add_filter( 'syndicated_feed_items' , 'feedgeomashup_unmapped_posts' , 100 , 2 )
 //filter posts based on latlong ranges
 function feedgeomashup_filter_mapped_posts( $posts , $link ) {
 
-	//Is the option to filter mapped posts selected?
-	$whether_filter = get_option('feedwordpress_feedgeomashup_filter_mapped_posts');
-	if ( $whether_filter != "true" ) { return $posts; }
+	//Is the option to filter mapped posts selected globally?
+	$sitewide_setting = get_option('feedwordpress_feedgeomashup_filter_mapped_posts');
+	if ( $sitewide_setting == 'filter' ) :
+		$whether_filter = 'filter' ; 
+	else : //use the default
+		$whether_filter = 'nofilter';
+	endif;
+
+	//override with feed setting if appropriate
+	$feed_setting = $link->settings['feedgeomashup_filter_mapped_posts'];
+	if ( $feed_setting == 'filter' ) :
+		$whether_filter = 'filter';
+	elseif ( $feed_setting == 'nofilter' ) :
+		$whether_filter = 'nofilter';
+	endif;
+
+	if ( $whether_filter == 'nofilter' ) :
+		return $posts;
+	endif;
 
 	//Get the range
 	$range = get_option( 'feedwordpress_feedgeomashup_range' );
