@@ -135,11 +135,15 @@ $page->setting_radio_control(
 <!-- filter-by-range row -->
 <tr><th scope="row">Ranges</th>
 <td>
-<?php
+<?php 
+if ( !$page->for_feed_settings() ) : 
 foreach( $setting['feedgeomashup_range'] as $limit => $label ) {
 	$format = '<input type="textbox" maxlength="20" name="feedgeomashup_%s" value="%f" /> %s <br />';
 	printf( $format , $limit , $feedgeomashup_range[$limit] , $label );
 }
+else :
+	echo "This is a feed-specific settings page. For the present, at least, range values can be edited only on the default settings for Posts & Links.";
+endif;
 ?>
 </td>
 </tr>
