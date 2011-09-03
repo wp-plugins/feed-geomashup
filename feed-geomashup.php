@@ -69,6 +69,11 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 			'all'    => __('All Posts') ,
 			'mapped' => __('Mapped Posts Only') ,
 		),
+		//whether to filter by range?
+		'feedgeomashup_filter_mapped_posts' => array(
+			'true' => __('Filter mapped posts by range') ,
+			''     => __('Do not filter mapped posts by range') ,
+		),
 		//filter mapped posts by range?
 		'feedgeomashup_range' => array(
 			'latmin'  => __('Minimum Latitude') ,
@@ -113,8 +118,20 @@ $page->setting_radio_control(
 
 <!-- filter-mapped-posts row -->
 <tr><th scope="row">Filter mapped posts?</th>
+<td><?php
+$params = array(
+	'setting-default' => 'default' , 
+	'global-setting-default' => '' ,
+	'default-input-value' => 'default',
+);
+$page->setting_radio_control(
+	'feedgeomashup_filter_mapped_posts', 'feedgeomashup_filter_mapped_posts',
+	$setting['feedgeomashup_filter_mapped_posts'], $params
+);
+?>
+<!--</td>
 <td><label><input type="checkbox" name="feedgeomashup_filter_mapped_posts" value="true"<?php echo (($feedgeomashup_filter_mapped_posts=="true")? ' checked="checked"' : '' ); ?> /> You can filter mapped posts whether or not you are limiting the feed to "Mapped Posts Only."
-</label></td></tr>
+</label></td>--></tr>
 
 <!-- filter-by-range row -->
 <tr><th scope="row">Ranges</th>
@@ -163,10 +180,10 @@ function feedgeomashup_options_save( $params , $page) {
 		update_option( 'feedwordpress_feedgeomashup_posts' , $_REQUEST['feedgeomashup_posts']);
 		update_option( 'feedwordpress_feedgeomashup_range' , $feedgeomashup_range );
 	else :
-//		$page->link->settings['feedgeomashup posts'] = $_REQUEST['feedgeomashup_posts'];
-//		$page->link->settings['feedgeomashup_range']['filter_range'] = "yipe".$_REQUEST['filter_range'];
+		$page->link->settings['feedgeomashup posts'] = $_REQUEST['feedgeomashup_posts'];
+		$page->link->settings['feedgeomashup_filter_mapped_posts'] = $_REQUEST['feedgeomashup_filter_mapped_posts'];
 	endif;
-}
+} /* feedgeomashup_options_save() */
 
 //handle unmapped posts
 function feedgeomashup_unmapped_posts( $posts , $link ) {
