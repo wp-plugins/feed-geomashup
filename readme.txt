@@ -37,6 +37,13 @@ Look under "Syndication > Posts & Links" to find a Feed GeoMashup options box. S
 
 Nothing. They will not be deleted, but neither will they be updated. If you set Feed GeoMashup to filter them, FeedWordPress will be affectively unaware of them.
 
+= Can I filter an incoming feed to include mapped posts only from a limited
+area?
+
+Yes. On the "Syndication > Posts & Links" settings page you can define limits
+to a range of longitudes and latitudes. Only posts mapped within the limits
+will be syndicated.
+
 = Are you offering support for this plugin? =
 
 No.
@@ -47,6 +54,10 @@ No.
 2. Feed GeoMashup feed-specific overrides
 
 == Upgrade Notice ==
+
+= 2.1 =
+Introduces the option to filter mapped posts by longitude and latitude. Only
+posts within a given range will be syndicated.
 
 = 2.0 =
 This is a significant advance over the initial release. You can now find FeedGeoMashup options among the FeedWordPress settings. You can opt to filter out posts that do not include GeoRSS data. You can set a site-wide preference and feed-specific overrides. 
@@ -66,6 +77,9 @@ pulling in Google Maps Mashups.
 Go to "Syndication > Posts & Links" in the FeedWordPress admin interface to set filtering preferences.
 
 == Changelog ==
+
+= 2.1 =
+* Users can now opt to filter an incoming feed's mapped posts by longitude and latitude. 
 
 = 2.0 =
 * Adding site-wide and feed-specific options to pull in all posts or only posts with GeoRSS data.
