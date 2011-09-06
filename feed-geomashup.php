@@ -48,7 +48,10 @@ add_action(
 	/*arguments=*/ 2
 );
 
-//create an options area in the FeedWordPress Admin UI
+/**
+ * Create an options area in the FeedWordPress Admin UI
+ */
+
 function add_meta_box_feedgeomashup_options( $page ) {
 	add_meta_box(
 		/*id=*/ 'feedgeomashup_options_box' ,
@@ -59,10 +62,14 @@ function add_meta_box_feedgeomashup_options( $page ) {
 	);
 } /* add_meta_box_feedgeomashup_options() */
 
-//function to create the contents of the meta box
+/**
+ * Function to create the contents of the meta box
+ */
+
 function add_feedgeomashup_options_box( $page, $box = NULL ) {
 
 	//the settings are stored in an array
+	//these settings populate a radio-button class in feedwordpress
 	$setting = array(
 		//include unmapped posts?
 		'feedgeomashup_posts' => array(
@@ -75,6 +82,7 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 			'filter'   => __('Filter mapped posts by range') ,
 		),
 		//filter mapped posts by range?
+		//these settings are used by this plugin directly
 		'feedgeomashup_range' => array(
 			'latmin'  => __('Minimum Latitude') ,
 			'latmax'  => __('Maximum Latitude') ,
@@ -89,6 +97,7 @@ function add_feedgeomashup_options_box( $page, $box = NULL ) {
 		$feedgeomashup_posts = get_option( 'feedwordpress_feedgeomashup_posts' );
 		$feedgeomashup_filter_mapped_posts = get_option( 'feedwordpress_feedgeomashup_filter_mapped_posts' );
 		$feedgeomashup_range = get_option( 'feedwordpress_feedgeomashup_range' );
+		//set defaults if no range has been specified
 		if ( !$feedgeomashup_range ) :
 			$feedgeomashup_range = array(
 				'latmin' => '-90' ,
@@ -152,7 +161,10 @@ endif;
 <?php
 } /* add_feedgeomashup_options_box() */
 
-//function to save the settings
+/**
+ * Function to save the settings
+ */
+
 function feedgeomashup_options_save( $params , $page) {
 
 	//array of limits
@@ -188,7 +200,10 @@ function feedgeomashup_options_save( $params , $page) {
 	endif;
 } /* feedgeomashup_options_save() */
 
-//handle unmapped posts
+/**
+ * Function to handle unmapped posts
+ */
+
 function feedgeomashup_unmapped_posts( $posts , $link ) {
 
 	//get the site-wide preference for keeping all or only mapped posts
@@ -227,12 +242,15 @@ function feedgeomashup_unmapped_posts( $posts , $link ) {
 	endif;
 
 	return $posts;
-}
+} /* feedgeomashup_unmapped_posts() */ 
 
 //hook into syndicated_feed_items
 add_filter( 'syndicated_feed_items' , 'feedgeomashup_unmapped_posts' , 100 , 2 );
 
-//filter posts based on latlong ranges
+/**
+ * Function to filter posts based on latlong ranges
+ */
+
 function feedgeomashup_filter_mapped_posts( $posts , $link ) {
 
 	//Is the option to filter mapped posts selected globally?
@@ -281,24 +299,26 @@ function feedgeomashup_filter_mapped_posts( $posts , $link ) {
 					unset( $posts[$key] );
 					continue;
 				endif;
-				elseif (( $post_long > $range_longmin ) || ( $post_long < $range_longmax )) :
-					echo "why is it hitting this?";
-				die();
-					unset( $posts[$key] );
-					continue;
-				endelseif;
+			elseif (( $post_long > $range_longmin ) || ( $post_long < $range_longmax )) :
+				unset( $posts[$key] );
+				continue;
 			endif;
 		endforeach;
 	endif;
 
 	return $posts;
 
-}
+} /* feedgeomashup_filter_mapped_posts */
 
 //hook into syndicated_feed_items
 add_filter( 'syndicated_feed_items' , 'feedgeomashup_filter_mapped_posts' , 99 , 2 );
 
-//pass geo-data from FeedWordPress to GeoMashup
+/**
+ *
+ * Pass geo-data from FeedWordPress to GeoMashup
+ *
+ */
+
 function feed_geomashup( $post_ID , $syndicated_item ) {
 
 	//pull the location out of the RSS
@@ -324,7 +344,7 @@ function feed_geomashup( $post_ID , $syndicated_item ) {
 		//process the location information for the current post
 		GeoMashupDB::set_object_location( $object_name , $post_ID , $location );
 	}
-}
+} /* feed_geomashup() */
 
 //run the feed_geo_mashup function for new and updated posts
 add_action( 'post_syndicated_item' , 'feed_geomashup' , 10 , 2 );
