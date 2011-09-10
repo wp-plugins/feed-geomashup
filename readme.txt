@@ -55,6 +55,9 @@ No.
 
 == Upgrade Notice ==
 
+= 2.2 =
+Includes an important fix. GeoMashup single maps will now render correctly.
+
 = 2.1 =
 Introduces the option to filter mapped posts by longitude and latitude. Only
 posts within a given range will be syndicated.
@@ -77,6 +80,15 @@ pulling in Google Maps Mashups.
 Go to "Syndication > Posts & Links" in the FeedWordPress admin interface to set filtering preferences.
 
 == Changelog ==
+
+= 2.2 =
+* GeoMashup single maps had been rendering imperfectly after syndication. The
+ problem was that the RSS feed included rendered HTML rather than the
+shortcode, but the GeoMashup JavaScripts could not be run from the originating
+site. FeedGeoMashup now strips the rendered HTML and reasserts the bare shortcode. Any custom attributes set on the
+original copy of the post will be lost. On the other hand, default settings on the
+syndicating site will apply, a fact that will insure consistency even when
+posts come from different sournces.  
 
 = 2.1 =
 * Users can now opt to filter an incoming feed's mapped posts by longitude and latitude. 
