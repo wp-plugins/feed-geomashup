@@ -3,7 +3,7 @@ Contributors: kwiliarty
 Donate link: none
 Tags: feedwordpress, geomashup, syndication, geodata, georss, aggregation
 Requires at least: 2.8
-Tested up to: 4.0
+Tested up to: 4.2
 Stable tag: 2.2.1
 
 Let two great plugins play great together. Use FeedWordPress to aggregate 
